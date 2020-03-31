@@ -1,0 +1,58 @@
+version: '3.5'
+
+services:
+    php-apache:
+        build:
+            context: ./php-apache
+            args:
+                - PHP_VERSION=${PHP_VERSION}
+                - NODE_VERSION=${NODE_VERSION} 
+        container_name: web
+        ports: 
+            - 80:80
+        volumes:
+            - ${PROJECT_PATH}:/var/www
+            - ./php-apache/sites:/etc/apache2/sites-available
+        networks:
+            backend:
+                aliases:
+                    - web
+
+    postgres:
+        build:
+            context: ./postgres
+            args: 
+                - POSTGRES_VERSION=${POSTGRES_VERSION}
+        container_name: db
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        volumes:
+            - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+        depends_on:
+            - php-apache
+        networks:
+            backend:
+                aliases:
+                    - postgres-db
+
+    adminer:
+        build:
+            context: ./adminer
+        container_name: adminer
+        ports: 
+            - 8080:8080
+        depends_on:
+            - php-apache
+        networks:
+            backend:
+                aliases:
+                    - adminer
+
+networks:
+    backend:
+        name:
+            backend-network
