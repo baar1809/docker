@@ -7,7 +7,6 @@ services:
             args:
                 - PHP_VERSION=${PHP_VERSION}
                 - NODE_VERSION=${NODE_VERSION} 
-        container_name: web
         ports: 
             - 80:80
         volumes:
@@ -23,7 +22,6 @@ services:
             context: ./postgres
             args: 
                 - POSTGRES_VERSION=${POSTGRES_VERSION}
-        container_name: db
         ports:
             - 5432:5432
         environment:
@@ -42,7 +40,6 @@ services:
     adminer:
         build:
             context: ./adminer
-        container_name: adminer
         ports: 
             - 8080:8080
         depends_on:

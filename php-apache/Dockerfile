@@ -28,6 +28,7 @@ RUN apt-get update && \
     zip \
     unzip \
     bzip2 \
+    libzip-dev \
     libbz2-dev \
     libfontconfig \
     libfreetype6-dev \
@@ -62,9 +63,7 @@ RUN docker-php-ext-install \
     calendar \
     mbstring \
     pgsql \
-    pdo_pgsql && \
-    pecl install redis apcu && \
-    docker-php-ext-enable redis apcu
+    pdo_pgsql
 
 # Install Xdebug
 RUN pecl install xdebug-2.7.2 \
