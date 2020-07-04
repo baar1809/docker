@@ -65,20 +65,14 @@ RUN docker-php-ext-install \
     pgsql \
     pdo_pgsql
 
-# Install Xdebug
-RUN pecl install xdebug-2.7.2 \
-    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > $PHP_INI_DIR/conf.d/xdebug.ini \
-    && echo "xdebug.remote_enable=on" >> $PHP_INI_DIR/conf.d/xdebug.ini \
-    && echo "xdebug.remote_autostart=off" >> $PHP_INI_DIR/conf.d/xdebug.ini
 
 # Apache configuration
 ENV APACHE_DOCUMENT_ROOT /var/www
 ENV APACHE_RUN_USER #1000
 ENV APACHE_RUN_GROUP #1000
 RUN a2enmod rewrite headers expires 
-#    sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
-#    sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-#  && sed -i "/DocumentRoot \/var\/www\/html/c\\\tDocumentRoot \$\{APACHE_DOCROOT\}" /etc/apache2/sites-enabled/000-default.conf
+
+
 COPY vhost.conf /etc/apache2/sites-enabled/vhost.conf
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
