@@ -26,7 +26,6 @@ services:
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
         volumes:
             - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-            - ./postgres/data:/var/lib/postgresql/data
         depends_on:
             - web
 
@@ -35,8 +34,6 @@ services:
             context: ./redis
             args: 
                 - REDIS_VERSION=${REDIS_VERSION}        
-        volumes:
-            - ./redis/data:/data
         ports:
             - ${REDIS_PORT}:6379
         depends_on:
