@@ -3,6 +3,18 @@ FROM php:${PHP_VERSION}-apache
 
 MAINTAINER Roman Zakharov <zkhvroman@github.com>
 
+RUN apt-get update && apt-get install -y locales
+
+# Set locale
+RUN sed -i -e \
+  's/# ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/' /etc/locale.gen \
+     && locale-gen
+
+ENV LANG ru_RU.UTF-8
+ENV LANGUAGE ru_RU:ru
+ENV LC_LANG ru_RU.UTF-8
+ENV LC_ALL ru_RU.UTF-8
+
 # Set timezone
 ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -38,6 +50,7 @@ RUN apt-get update && \
     libxml2-dev \
     libmcrypt-dev \
     libpq-dev \
+    libonig-dev \
     g++
 
 # Install Node (with NPM)
@@ -50,6 +63,9 @@ RUN apt-get update && \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+# Configure gd extension
+RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg
 
 # Install additional php extensions
 RUN docker-php-ext-install \
