@@ -14,6 +14,13 @@ services:
             - ${PROJECT_PATH}:/var/www
             - ./web/sites:/etc/apache2/sites-available
 
+    selenium:
+        image: selenium/standalone-firefox
+        volumes:
+            - ${PROJECT_PATH}:/var/www
+        depends_on:
+            - web
+
     postgres:
         build:
             context: ./postgres
@@ -27,6 +34,7 @@ services:
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
         volumes:
             - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+            - ~/.docker/data/postgres:/var/lib/postgresql/data
         depends_on:
             - web
 
