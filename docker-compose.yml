@@ -1,49 +1,50 @@
 version: '3.5'
 
 services:
-    web:
+    php-apache:
         build:
-            context: ./web
+            context: ./php-apache
             args:
-                - PHP_VERSION=${PHP_VERSION}
-                - NODE_VERSION=${NODE_VERSION} 
+                - NODE_VERSION=${NODE_VERSION}
+                - UID=${UID}
+                - GID=${GID}
+        environment:
+            - http_proxy=${HTTP_PROXY}
+            - https_proxy=${HTTPS_PROXY}
+            - no_proxy=${NO_PROXY}
         ports: 
             - ${APACHE_PORT}:80
-            - ${FRONTEND_PORT}:3000  
+            - ${HOT_RELOAD_PORT}:3000
         volumes:
             - ${PROJECT_PATH}:/var/www
-            - ./web/sites:/etc/apache2/sites-available
+            - ./php-apache/sites:/etc/apache2/sites-available
+        depends_on:
+            - postgres
+            - redis
+            - selenium
+
+    postgres:
+        image: postgres:9.6-alpine
+        ports:
+            - ${POSTGRES_PORT}:5432
+        environment:
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+
+    redis:
+        image: redis:3.2.6-alpine
+        volumes:
+            - redis-data:/data  
+        ports:
+            - ${REDIS_PORT}:6379
 
     selenium:
         image: selenium/standalone-firefox
         volumes:
             - ${PROJECT_PATH}:/var/www
-        depends_on:
-            - web
 
-    postgres:
-        build:
-            context: ./postgres
-            args: 
-                - POSTGRES_VERSION=${POSTGRES_VERSION}
-        ports:
-            - ${POSTGRES_PORT}:5432
-        environment:
-            - POSTGRES_DB=${POSTGRES_DB}
-            - POSTGRES_USER=${POSTGRES_USER}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        volumes:
-            - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-            - ~/.docker/data/postgres:/var/lib/postgresql/data
-        depends_on:
-            - web
-
-    redis:
-        build: 
-            context: ./redis
-            args: 
-                - REDIS_VERSION=${REDIS_VERSION}        
-        ports:
-            - ${REDIS_PORT}:6379
-        depends_on:
-            - web
+volumes:
+    postgres-data:
+    redis-data:
