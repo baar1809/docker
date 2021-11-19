@@ -15,5 +15,17 @@ stop:
 up:
 	@docker-compose up -d
 
+ps:
+	@docker-compose ps
+
 bash:
-	@docker-compose exec php-apache bash
+	@docker-compose exec -u www-data php-apache bash
+
+psql:
+	@docker-compose exec -u postgres postgres psql
+
+redis-cli:
+	@docker-compose exec redis redis-cli
+
+logs:
+	@docker-compose logs -f
