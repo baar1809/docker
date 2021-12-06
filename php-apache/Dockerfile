@@ -1,14 +1,12 @@
 FROM php:7.0-apache
 
-MAINTAINER Roman Zakharov <zkhvroman@github.com>
-
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install Node
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
@@ -17,10 +15,19 @@ RUN pecl install -o -f redis-5.3.4 xdebug-2.7.0 \
     && rm -rf /tmp/pear
 
 RUN apt-get update \
-    && apt-get install -yqq iproute2 iputils-ping libpq-dev libzip-dev zip \
+    && apt-get install -yqq \
+    iproute2 \
+    iputils-ping \
+    libpq-dev \
+    libzip-dev zip \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng-dev \
     && docker-php-ext-configure zip --with-libzip \
-    && docker-php-ext-install pdo_pgsql exif zip \
-    && docker-php-ext-enable pdo_pgsql redis xdebug exif zip \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install pdo_pgsql exif zip gd calendar \
+    && docker-php-ext-enable redis xdebug \
     && rm -rf /var/lib/apt/lists/*
 
 # Set php setup
