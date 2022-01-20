@@ -5,11 +5,6 @@ ENV DEBIAN_FRONTEND noninteractive
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install Node
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install php extension
 RUN pecl install -o -f redis-5.3.4 xdebug-2.7.0 \
     && rm -rf /tmp/pear
@@ -51,5 +46,27 @@ ENV PGID ${PGID}
 RUN groupmod -o -g ${PGID} www-data && \
     usermod -o -u ${PUID} -g www-data www-data
 
+#Install Node version manager
+RUN mkdir /usr/local/nvm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 16.13.0
+ENV NVM_INSTALL_PATH $NVM_DIR/versions/node/v$NODE_VERSION
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | bash
+RUN . $NVM_DIR/nvm.sh \
+   && nvm install $NODE_VERSION \
+   && nvm alias default $NODE_VERSION \
+   && nvm use default
+ENV NODE_PATH $NVM_INSTALL_PATH/lib/node_modules
+ENV PATH $NVM_INSTALL_PATH/bin:$PATH
+RUN npm -v
+RUN node -v
+RUN source ~/.bashrc && nvm --version
+RUN echo 'export NVM_DIR="/usr/local/nvm"' >> /etc/bash.bashrc
+RUN echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> /etc/bash.bashrc
+RUN echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> /etc/bash.bashrc
+
+
 # Change default work directory
 WORKDIR /var/www
+
