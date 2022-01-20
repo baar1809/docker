@@ -20,11 +20,17 @@ stop: ## Stop containers
 up: ## Start containers
 	@docker-compose up -d
 
+restart: ## Start containers
+	@docker-compose restart
+
 ps: ## Show running containers
 	@docker-compose ps
 
 bash: ## Shell
 	@docker-compose exec -u www-data php-apache bash
+
+bash-root: ## Shell
+	@docker-compose exec php-apache bash
 
 psql: ## psql in postgres containers
 	@docker-compose exec -u postgres postgres psql
